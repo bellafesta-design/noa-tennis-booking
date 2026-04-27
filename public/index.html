@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NoA Tennis Booking</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-bg"></div>
+    <main class="layout">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">NoA STOCKHOLM</p>
+          <img class="brand-logo" src="/noa-tennis-booking-logo.svg" alt="NoA Tennis booking" />
+          <p class="lead">
+            Every Wednesday, 12:00-13:00, Court 13.<br />
+            Adress: Södra Fiskartorpsvägen 20
+          </p>
+        </div>
+        <div class="legend">
+          <span class="badge badge-open">Available</span>
+          <span class="badge badge-booked">Booked</span>
+          <span class="badge badge-closed">Closed</span>
+        </div>
+      </header>
+
+      <section class="card filter-card">
+        <div class="calendar-month-nav">
+          <button id="month-prev" class="btn btn-small month-nav-btn" type="button" aria-label="Previous month">←</button>
+          <p id="month-label" class="month-label"></p>
+          <button id="month-next" class="btn btn-small month-nav-btn" type="button" aria-label="Next month">→</button>
+        </div>
+        <div id="calendar-grid" class="month-calendar" aria-live="polite"></div>
+      </section>
+
+      <section class="card booking-card">
+        <h2>Book your slot</h2>
+        <form id="booking-form" class="form-grid">
+          <label>
+            Email
+            <input id="email" name="email" type="email" placeholder="firstname.lastname@noa.se" required />
+          </label>
+          <label>
+            Name
+            <input id="name" name="name" type="text" placeholder="Your full name" required />
+          </label>
+          <label>
+            Agency/Team
+            <input id="agency" name="agency" type="text" placeholder="NoA Connect" />
+          </label>
+          <p id="selected-slot-hint" class="selected-slot-hint">Select an available day in the calendar.</p>
+          <input id="selected-slot-id" name="slotId" type="hidden" />
+          <label class="checkbox-row">
+            <input id="rule-check" type="checkbox" required />
+            <span>I confirm that I can only have one active booking at a time.</span>
+          </label>
+          <button type="submit" class="btn btn-primary booking-submit-btn">Book selected slot</button>
+        </form>
+        <p id="booking-message" class="message" aria-live="polite"></p>
+      </section>
+
+      <section class="card cancel-booking-card">
+        <div class="cancel-layout">
+          <div class="cancel-copy">
+            <h3 class="cancel-title">Need to cancel your booking?</h3>
+            <p id="selected-cancel-slot-hint" class="cancel-steps">1. Select your booked day in the calendar.
+2. Enter your email.
+3. Enter the recieved verification code. Click cancel.</p>
+          </div>
+
+          <form id="cancel-form" class="cancel-form">
+            <div class="cancel-line">
+              <input id="cancel-email" name="cancelEmail" type="email" placeholder="Enter e-mail" aria-label="Enter e-mail" required />
+              <button id="send-cancel-code" type="button" class="btn btn-secondary cancel-action-btn">SEND CODE</button>
+            </div>
+            <div class="cancel-line">
+              <input id="cancel-code" name="cancelCode" type="text" inputmode="numeric" pattern="[0-9]{6}" placeholder="Enter verificaton code" aria-label="Enter verificaton code" required />
+              <button type="submit" class="btn btn-cancel-solid cancel-action-btn">CANCEL MY BOOKING</button>
+            </div>
+            <p id="cancel-message" class="message" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="admin-card">
+        <button id="admin-toggle" class="admin-toggle" type="button" aria-expanded="false">admin</button>
+
+        <div id="admin-shell" class="admin-shell hidden">
+          <div class="admin-header">
+            <h2>Admin</h2>
+            <button id="admin-logout" class="btn btn-secondary hidden" type="button">Log out</button>
+          </div>
+
+          <form id="admin-login-form" class="inline-form">
+            <label>
+              Admin password
+              <input id="admin-password" type="password" autocomplete="current-password" required />
+            </label>
+            <button type="submit" class="btn btn-secondary">Log in</button>
+          </form>
+
+          <p id="admin-message" class="message" aria-live="polite"></p>
+
+          <div id="admin-panel" class="hidden">
+            <p class="admin-help">
+              Close/open dates and remove incorrect bookings.
+            </p>
+            <div id="admin-list" class="admin-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <template id="admin-item-template">
+      <article class="admin-item">
+        <div>
+          <p class="slot-date"></p>
+          <p class="slot-booking"></p>
+        </div>
+        <div class="admin-actions">
+          <label class="switch-row">
+            <input type="checkbox" class="close-toggle" />
+            <span>Closed</span>
+          </label>
+          <input type="text" class="close-reason" placeholder="Closing reason" />
+          <button type="button" class="btn btn-small apply-close">Save</button>
+          <button type="button" class="btn btn-small btn-danger clear-booking">Remove booking</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
