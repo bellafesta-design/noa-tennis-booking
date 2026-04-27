@@ -390,7 +390,7 @@ function renderCalendar() {
         cell.append(slotText);
 
         if (slot.status === 'booked') {
-          const bookedBy = slot.bookedName || 'Unknown';
+          const bookedBy = displayBookedName(slot) || 'Unknown';
           const bookedAgency = slot.bookedAgency ? ` (${slot.bookedAgency})` : '';
           cell.title = `Booked by ${bookedBy}${bookedAgency}`;
         } else if (slot.status === 'closed') {
@@ -501,9 +501,23 @@ function calendarStatusText(slot) {
     return 'Available';
   }
   if (slot.status === 'booked') {
-    return slot.bookedName || 'Booked';
+    return displayBookedName(slot) || 'Booked';
   }
   return 'Closed';
+}
+
+function displayBookedName(slot) {
+  const raw = String(slot?.bookedName || '').trim();
+  if (!raw) {
+    return '';
+  }
+
+  const wrapped = raw.match(/^booked\s*\((.*)\)$/i);
+  if (wrapped) {
+    return wrapped[1].trim();
+  }
+
+  return raw;
 }
 
 async function changeMonth(delta) {
