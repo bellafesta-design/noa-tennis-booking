@@ -17,7 +17,7 @@ services:
         sync: false
       - key: RESEND_FROM_EMAIL
         sync: false
-    disks:
-      - name: noa-tennis-data
-        mountPath: /var/data
-        sizeGB: 1
+    disk:
+      name: noa-tennis-data
+      mountPath: /var/data
+      sizeGB: 1
