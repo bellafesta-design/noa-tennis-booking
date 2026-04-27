@@ -501,7 +501,7 @@ function calendarStatusText(slot) {
     return 'Available';
   }
   if (slot.status === 'booked') {
-    return slot.bookedName ? `Booked (${slot.bookedName})` : 'Booked';
+    return slot.bookedName || 'Booked';
   }
   return 'Closed';
 }
