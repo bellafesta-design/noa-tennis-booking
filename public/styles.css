@@ -201,6 +201,18 @@ label {
   gap: 7px;
 }
 
+.field-block {
+  display: grid;
+  gap: 7px;
+}
+
+.field-label {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
 input,
 select,
 button {
