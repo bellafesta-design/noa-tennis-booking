@@ -147,13 +147,17 @@ h2 {
 
 .lead {
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
+  text-transform: none;
+  letter-spacing: 0;
   color: var(--ink);
   font-weight: 800;
   font-size: 0.78rem;
   line-height: 1.45;
   max-width: 60ch;
+}
+
+.lead a {
+  color: inherit;
 }
 
 .legend {
