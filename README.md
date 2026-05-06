@@ -24,8 +24,7 @@ ADMIN_PASSWORD='byt-till-ett-starkt-losenord' node server.js
 - `PORT`: port (default `8787`)
 - `BOOKING_YEAR`: vilket år som ska initieras (default = innevarande år)
 - `DATA_DIR`: valfri katalog för databasfiler (default `./data`)
-- `RESEND_API_KEY`: valfritt, för att skicka avbokningskod via e-post (Resend)
-- `RESEND_FROM_EMAIL`: avsändaradress för Resend, t.ex. `NoA Tennis <no-reply@din-domän.se>`
+- `SMTP_API_KEY`: API-nyckel för NoA SMTP API (krävs för att skicka avbokningskod via e-post)
 
 ## Adminflöde
 
@@ -40,7 +39,7 @@ ADMIN_PASSWORD='byt-till-ett-starkt-losenord' node server.js
 3. Klicka på `Send code`.
 4. Ange koden och klicka `Cancel my booking`.
 
-Om `RESEND_*` inte är konfigurerat visas koden i UI:t (dev-läge).
+Om `SMTP_API_KEY` saknas kan avbokningskoden inte skickas.
 
 ## Datalagring
 
@@ -62,9 +61,8 @@ Varför Render: appen använder SQLite och behöver en persistent disk för att 
 2. I Render: `New +` -> `Blueprint`.
 3. Välj repot. Render läser `render.yaml` automatiskt.
 4. Sätt ett starkt värde för `ADMIN_PASSWORD`.
-5. Om ni vill skicka avbokningskod via e-post, sätt även:
-   - `RESEND_API_KEY`
-   - `RESEND_FROM_EMAIL`
+5. För avbokningskod via e-post, sätt:
+   - `SMTP_API_KEY`
 6. Klicka `Apply` / `Deploy`.
 7. Öppna din publika URL från Render.
 

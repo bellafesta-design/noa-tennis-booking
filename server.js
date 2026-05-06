@@ -18,8 +18,7 @@ const DB_PATH = path.join(DATA_DIR, 'tennis-booking.db');
 const PORT = Number(process.env.PORT || 8787);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change-me-now';
 const DEFAULT_YEAR = Number(process.env.BOOKING_YEAR || new Date().getFullYear());
-const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
+const SMTP_API_KEY = process.env.SMTP_API_KEY || '';
 
 if (!existsSync(DATA_DIR)) {
   mkdirSync(DATA_DIR, { recursive: true });
@@ -318,7 +317,7 @@ async function handlePublicCancelRequestCode(res, body) {
     ) VALUES (?, ?, ?, ?, ?, NULL)
   `).run(slotId, email, code, now, expiresAt);
 
-  const delivery = await sendCancellationCodeEmail(email, code, slot);
+  const delivery = await sendCancellationCodeEmail(email, code);
   if (delivery.sent) {
     return json(res, 200, {
       ok: true,
@@ -326,10 +325,14 @@ async function handlePublicCancelRequestCode(res, body) {
     });
   }
 
-  return json(res, 200, {
-    ok: true,
-    message: 'Verification code generated. Email delivery is not configured here, so the code is shown below.',
-    devCode: code
+  db.prepare(`
+    DELETE FROM cancellation_codes
+    WHERE slot_id = ? AND lower(email) = lower(?) AND used_at IS NULL
+  `).run(slotId, email);
+
+  console.error('Could not deliver cancellation code email:', delivery.error || 'Unknown error');
+  return json(res, 500, {
+    error: 'Could not send verification code email right now. Please try again.'
   });
 }
 
@@ -759,43 +762,38 @@ function generateVerificationCode() {
   return String(randomInt(100000, 1000000));
 }
 
-async function sendCancellationCodeEmail(email, code, slot) {
-  const text = [
-    `Your NoA Tennis cancellation code is ${code}.`,
-    'The code expires in 10 minutes.',
-    '',
-    `Booking: ${formatDateEn(slot.date)}, ${slot.start_time}-${slot.end_time}, Court ${slot.court}.`
-  ].join('\n');
-
-  if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
-    try {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: RESEND_FROM_EMAIL,
-          to: [email],
-          subject: 'Your NoA Tennis cancellation code',
-          text
-        })
-      });
-
-      if (!response.ok) {
-        const body = await response.text();
-        console.error('Resend email error:', body);
-      } else {
-        return { sent: true };
-      }
-    } catch (error) {
-      console.error('Failed to send cancellation code email:', error);
-    }
+async function sendCancellationCodeEmail(email, code) {
+  if (!SMTP_API_KEY) {
+    return { sent: false, error: 'SMTP_API_KEY is missing.' };
   }
 
-  console.log(`[DEV cancellation code] email=${email} code=${code} slot=${slot.date}`);
-  return { sent: false, devCode: code };
+  const body = new URLSearchParams({
+    apikey: SMTP_API_KEY,
+    email,
+    code
+  });
+
+  try {
+    const response = await fetch('https://it.noastockholm.com/tennis/smtp-api.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: body.toString()
+    });
+
+    if (!response.ok) {
+      const responseText = await response.text().catch(() => '');
+      return {
+        sent: false,
+        error: `SMTP API responded with ${response.status}${responseText ? `: ${responseText}` : ''}`
+      };
+    }
+
+    return { sent: true };
+  } catch (error) {
+    return { sent: false, error: error?.message || 'SMTP API request failed.' };
+  }
 }
 
 function apiError(status, message) {
@@ -820,15 +818,6 @@ function toCleanString(value, maxLength) {
     return '';
   }
   return text.slice(0, maxLength);
-}
-
-function formatDateEn(dateString) {
-  return new Date(`${dateString}T00:00:00`).toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
 }
 
 process.on('SIGINT', () => {

@@ -147,11 +147,7 @@ function bindEvents() {
         })
       });
 
-      if (response.devCode) {
-        setMessage(cancelMessage, `${response.message} Code: ${response.devCode}`, false, true);
-      } else {
-        setMessage(cancelMessage, response.message || 'Verification code sent.', false, true);
-      }
+      setMessage(cancelMessage, response.message || 'Verification code sent.', false, true);
     } catch (error) {
       setMessage(cancelMessage, error.message, true);
     }
