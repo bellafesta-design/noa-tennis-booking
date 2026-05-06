@@ -15,7 +15,7 @@ const DATA_DIR = process.env.DATA_DIR
   : path.join(__dirname, 'data');
 const DB_PATH = path.join(DATA_DIR, 'tennis-booking.db');
 
-const PORT = Number(process.env.PORT || 8787);
+const PORT = process.env.PORT || 8080;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change-me-now';
 const DEFAULT_YEAR = Number(process.env.BOOKING_YEAR || new Date().getFullYear());
 const SMTP_API_KEY = process.env.SMTP_API_KEY || '';
@@ -54,8 +54,8 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`NoA Tennis booking is running on http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`NoA Tennis booking is running on 0.0.0.0:${PORT}`);
   if (ADMIN_PASSWORD === 'change-me-now') {
     console.warn('Warning: set ADMIN_PASSWORD in environment variables before production.');
   }
